@@ -1,9 +1,8 @@
-use crate::task::Task;
 use crate::error::{AppError, AppResult};
+use crate::task::Task;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
-
 
 #[derive(Default)]
 pub struct Store {
@@ -13,7 +12,7 @@ pub struct Store {
 }
 
 impl Store {
-    pub fn load(path: impl Into<PathBuf>) -> AppResult<Self>{
+    pub fn load(path: impl Into<PathBuf>) -> AppResult<Self> {
         let path = path.into();
 
         if !path.exists() {
@@ -29,7 +28,11 @@ impl Store {
         let tasks: Vec<Task> = serde_json::from_str(&content).unwrap_or_default();
         let next_id = tasks.iter().map(|t| t.id).max().unwrap_or(0) + 1;
 
-        Ok(Self {tasks, next_id, path})
+        Ok(Self {
+            tasks,
+            next_id,
+            path,
+        })
     }
 
     fn save(&self) -> AppResult<()> {
@@ -39,7 +42,7 @@ impl Store {
         Ok(())
     }
 
-    pub fn add_task(&mut self, title: String) -> AppResult<&Task>{
+    pub fn add_task(&mut self, title: String) -> AppResult<&Task> {
         let task = Task::new(self.next_id, title);
         self.tasks.push(task);
         self.next_id += 1;
@@ -47,16 +50,16 @@ impl Store {
         Ok(self.tasks.last().unwrap())
     }
 
-    pub fn list_tasks(&self) -> &[Task]{
+    pub fn list_tasks(&self) -> &[Task] {
         &self.tasks
     }
 
-    pub fn done_task(&mut self, id: u64) -> AppResult<()>{
+    pub fn done_task(&mut self, id: u64) -> AppResult<()> {
         let task = self
-        .tasks
-        .iter_mut()
-        .find(|t| t.id == id)
-        .ok_or(AppError::TaskNotFound(id))?;
+            .tasks
+            .iter_mut()
+            .find(|t| t.id == id)
+            .ok_or(AppError::TaskNotFound(id))?;
         task.mark_done();
         self.save()
     }
@@ -70,7 +73,4 @@ impl Store {
         }
         self.save()
     }
-    
-
 }
-

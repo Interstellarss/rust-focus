@@ -1,47 +1,38 @@
 mod cli;
-mod task;
-mod store;
 mod error;
+mod store;
+mod task;
+mod ui;
 
 use clap::Parser;
 use cli::{Cli, Commands};
 use store::Store;
+use ui::*;
 
 fn main() {
     let cli = Cli::parse();
-    let mut store = match Store::load("tasks.json"){
+    let mut store = match Store::load("tasks.json") {
         Ok(s) => s,
         Err(e) => {
             eprintln!("Error: {}", e);
-            return; 
+            return;
         }
     };
 
     match cli.command {
-        Commands::Add{title} => match store.add_task(title){
-                Ok(task) => println!("Added task #{}: {}", task.id, task.title),
-                Err(e) => eprint!("Error: {}", e),
-            
-        }
-        Commands::List => {
-            let tasks = store.list_tasks();
-            if tasks.is_empty() {
-                println!("no tasks yet.");
-            }else {
-                for t in tasks{
-                    let status = if t.done {"✅"} else {"Not"};
-                    println!("#{} {} {}", t.id, status, t.title);
-                }
-            }
-        }
-        Commands::Done{id} => match store.done_task(id) {
-            Ok(_) => println!("Task #{} marked as done.", id),
+        Commands::Add { title } => match store.add_task(title) {
+            Ok(task) => print_added(task.id, &task.title),
+            Err(e) => eprint!("Error: {}", e),
+        },
+        Commands::List => print_tasks(store.list_tasks()),
+
+        Commands::Done { id } => match store.done_task(id) {
+            Ok(_) => print_done(id),
             Err(e) => eprintln!("Error: {}", e),
         },
-        Commands::Delete{id} => match store.delete_task(id){
-            Ok(_) => println!("Task #{} deleted.", id),
+        Commands::Delete { id } => match store.delete_task(id) {
+            Ok(_) => print_deleted(id),
             Err(e) => println!("Error: {}", e),
         },
     }
-
 }
