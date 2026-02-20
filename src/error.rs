@@ -11,7 +11,7 @@ pub enum AppError {
     #[error("Task not found: id={0}")]
     TaskNotFound(u64),
 
-    #[error("Invalid iinput: {0}")]
+    #[error("Invalid input: {0}")]
     InvalidInput(String),
 }
 

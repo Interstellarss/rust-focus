@@ -1,7 +1,6 @@
 use crate::error::{AppError, AppResult};
 use crate::task::Task;
 use std::fs;
-use std::io;
 use std::path::PathBuf;
 
 #[derive(Default)]
@@ -37,12 +36,17 @@ impl Store {
 
     fn save(&self) -> AppResult<()> {
         let json = serde_json::to_string_pretty(&self.tasks)?;
-        //.map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         fs::write(&self.path, json)?;
         Ok(())
     }
 
     pub fn add_task(&mut self, title: String) -> AppResult<&Task> {
+        if title.trim().is_empty() {
+            return Err(AppError::InvalidInput(
+                "task title cannot be empty".to_string(),
+            ));
+        }
+
         let task = Task::new(self.next_id, title);
         self.tasks.push(task);
         self.next_id += 1;
