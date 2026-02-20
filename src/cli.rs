@@ -14,4 +14,5 @@ pub enum Commands {
     List,
     Done { id: u64 },
     Delete { id: u64 },
+    Tui,
 }

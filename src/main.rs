@@ -3,6 +3,7 @@ mod error;
 mod store;
 mod task;
 mod ui;
+mod tui;
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -34,5 +35,10 @@ fn main() {
             Ok(_) => print_deleted(id),
             Err(e) => println!("Error: {}", e),
         },
+        Commands::Tui => {
+            if let Err(e) = tui::run_tui(){
+                eprintln!("Error: {}", e);
+            }
+        }
     }
 }
